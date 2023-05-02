@@ -1,4 +1,0 @@
-io/flutter/plugins/GeneratedPluginRegistrant.java
- io.flutter.plugins.GeneratedPluginRegistrant
-com/signify/hue/reactivebleexample/BuildConfig.java
- com.signify.hue.reactivebleexample.BuildConfig
