@@ -300,12 +300,36 @@ class _CharacteristicInteractionDialogState
                     ),
                   )
                 ],
-              ):
-                  Column(
-                    children: [
-                      Text("SORRY")
-                    ],
+              ):Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Select an operation',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Text(
+                      widget.characteristic.characteristicId.toString(),
+                    ),
+                  ),
+
+                  divider,
+                  ...writeSection,
+                  divider,
+
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: ElevatedButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child:  Text("close")),
+                    ),
                   )
+                ],
+              )
             ),
           ),
         ),
