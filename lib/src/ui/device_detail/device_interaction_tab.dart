@@ -90,7 +90,10 @@ class _DeviceInteractionTabState extends State<_DeviceInteractionTab> {
     setState(() {
       discoveredServices = result;
     });
+
   }
+
+
 
   @override
   Widget build(BuildContext context) => CustomScrollView(
@@ -219,13 +222,32 @@ class _ServiceDiscoveryListState extends State<_ServiceDiscoveryList> {
     return props.join("\n");
   }
 
+
+  DiscoveredCharacteristic readCharacteristic(int index, DiscoveredCharacteristic current) {
+
+    for(int i=0; i<widget.discoveredServices[index].characteristics.length; i++)
+      {
+        print("IN LOOP-- ");
+        print(_charactisticsSummary(widget.discoveredServices[index].characteristics[i]));
+        if(_charactisticsSummary(widget.discoveredServices[index].characteristics[i])=="read")
+          {
+            return widget.discoveredServices[index].characteristics[i];
+
+          }
+      }
+
+    return current;
+  }
+
   Widget _characteristicTile(
-          DiscoveredCharacteristic characteristic, String deviceId) =>
+          DiscoveredCharacteristic characteristic, String deviceId, int index) =>
       ListTile(
 
-        onTap: (){
-          Navigator.push( context, MaterialPageRoute<void>(builder: (context) => CharacteristicInteractionDialog(characteristic: QualifiedCharacteristic(characteristicId: characteristic.characteristicId, serviceId: characteristic.serviceId, deviceId: deviceId), type: _charactisticsSummary(characteristic),)));
-
+        onTap: ()async{
+          DiscoveredCharacteristic readChar=  readCharacteristic(index, characteristic);
+          print(readChar.characteristicId);
+          print(_charactisticsSummary(readChar));
+          Navigator.push( context, MaterialPageRoute<void>(builder: (context) => CharacteristicInteractionDialog(characteristic: QualifiedCharacteristic(characteristicId: characteristic.characteristicId, serviceId: characteristic.serviceId, deviceId: deviceId), characteristicToRead: QualifiedCharacteristic(characteristicId: readChar.characteristicId, serviceId: readChar.serviceId, deviceId: deviceId),type: _charactisticsSummary(characteristic),)));
           print(_charactisticsSummary(characteristic));
           },
         title: Text(
@@ -241,49 +263,58 @@ class _ServiceDiscoveryListState extends State<_ServiceDiscoveryList> {
     final panels = <ExpansionPanel>[];
     var height=MediaQuery.of(c2).size.height;
     var width=MediaQuery.of(c2).size.width;
-
+    print("\n\n\n\n\n\n\n=================Starting here=================\n\n");
+    print(widget.discoveredServices.asMap().length);
+    print("\n=================END=================");
+    int i=-1;
     widget.discoveredServices.asMap().forEach(
-          (index, service) => panels.add(
-            ExpansionPanel(
-              canTapOnHeader: true,
+          (i, service) {
 
-              backgroundColor: background,
-              body: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                   Padding(
-                    padding: EdgeInsetsDirectional.only(start: 16.0),
-                    child: Text(
-                      'Characteristics',
-                      style: TextStyle(
-                        color: highlight,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
+            panels.add(
+              ExpansionPanel(
+                canTapOnHeader: true,
 
-                      )
+                backgroundColor: background,
+                body: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: EdgeInsetsDirectional.only(start: 16.0),
+                      child: Text(
+                          'Characteristics',
+                          style: TextStyle(
+                            color: highlight,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
+
+                          )
+                      ),
                     ),
-                  ),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) => _characteristicTile(
-                      service.characteristics[index],
-                      widget.deviceId,
+                    ListView.builder(
+                      shrinkWrap: true,
+                      itemBuilder: (context, index) => _characteristicTile(
+                        service.characteristics[index],
+                        widget.deviceId,
+                        i
+                      ),
+                      itemCount: service.characteristicIds.length,
                     ),
-                    itemCount: service.characteristicIds.length,
-                  ),
-                ],
-              ),
-              headerBuilder: (context, isExpanded) => ListTile(
-
-                title: Text(
-                  '${service.serviceId}',
-                  style: const TextStyle(fontSize: 14, color: Colors.white),
+                  ],
                 ),
+                headerBuilder: (context, isExpanded) => ListTile(
+
+                  title: Text(
+                    '${service.serviceId}',
+                    style: const TextStyle(fontSize: 14, color: Colors.white),
+                  ),
+                ),
+                isExpanded: _expandedItems.contains(i),
               ),
-              isExpanded: _expandedItems.contains(index),
-            ),
-          ),
+            );
+
+            print("index:  $i");
+          }
         );
 
     return panels;
